@@ -21,6 +21,20 @@ public class FibboServer {
     public static RatpackServer createServer() throws Exception {
         final HttpClient httpClient = HttpClient.of(rs -> rs.readTimeout(Duration.ofMinutes(2)));
 
+        return createServer(httpClient);
+    }
+
+    private static Promise<Long> requestFibb(long n, HttpClient httpClient) throws URISyntaxException {
+        try {
+
+            return httpClient.get(new URI("http://localhost:5050/fibbo/" + n))
+                    .map(resp -> Long.parseLong(resp.getBody().getText()));
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public static RatpackServer createServer(HttpClient httpClient) throws Exception {
 
         return RatpackServer.start(server -> server
                 .serverConfig(cfg ->
@@ -45,15 +59,5 @@ public class FibboServer {
                                     }
                                 }
                         ))));
-    }
-
-    private static Promise<Long> requestFibb(long n, HttpClient httpClient) throws URISyntaxException {
-        try {
-
-            return httpClient.get(new URI("http://localhost:5050/fibbo/" + n))
-                    .map(resp -> Long.parseLong(resp.getBody().getText()));
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
     }
 }
